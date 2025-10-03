@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import React, { useState } from "react";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { Drawer, useTheme } from "react-native-paper";
-import { showModalUpgradePro } from "./UpgradeProModal";
+import { showLoginModal } from "./LoginModal";
 
 export default function CustomDrawer(props) {
   const theme = useTheme();
@@ -31,7 +31,8 @@ export default function CustomDrawer(props) {
           onPress={() => {
             if (visible) {
               props.navigation.goBack();
-              showModalUpgradePro();
+              showLoginModal();
+              //showModalUpgradePro();
             } else {
               setActive(1);
               props.navigation.navigate("Perfil");
