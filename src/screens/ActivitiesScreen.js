@@ -2,6 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import CustomAppBar from "../components/CustomAppBar";
 import { useNavigation } from "@react-navigation/native";
+import GlobalIcon from "../components/GlobalIcon";
 
 export default function ActivitiesScreen() {
   const navigation = useNavigation();
@@ -13,7 +14,7 @@ export default function ActivitiesScreen() {
         showDrawerButton
         onDrawerPress={() => navigation.openDrawer()}
       />
-      <Text>ActivitiesScreen</Text>
+      <GlobalIcon name={"menu"} color="white" />
     </View>
   );
 }
