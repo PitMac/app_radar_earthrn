@@ -46,18 +46,15 @@ export default function UpgradeProModal() {
         dismissable={false}
         contentContainerStyle={{
           overflow: "hidden",
+          backgroundColor:theme.colors.surface,
           margin: 20,
           borderRadius: 8,
-          backgroundColor: "transparent",
           borderColor: "grey",
           borderWidth: 1,
+          padding:15
         }}
       >
-        <BlurView
-          style={styles.container}
-          intensity={100}
-          tint={theme.dark ? "dark" : "light"}
-        >
+
           <View
             style={{
               flexDirection: "row",
@@ -109,7 +106,6 @@ export default function UpgradeProModal() {
           >
             Anual USD 3.99
           </Button>
-        </BlurView>
       </Modal>
     </Portal>
   );

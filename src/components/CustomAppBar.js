@@ -12,7 +12,7 @@ export default function CustomAppBar({
   style,
 }) {
   return (
-    <Appbar.Header mode="center-aligned" style={style}>
+    <Appbar.Header theme={{ colors: { primary: 'green' } }} mode="center-aligned" style={style}>
       {showBackButton && <Appbar.BackAction onPress={onBackPress} />}
       {showDrawerButton && (
         <Appbar.Action icon="menu" onPress={onDrawerPress} />

@@ -28,7 +28,8 @@ export default function MapScreen() {
       <WebView
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
-        source={{ uri: "https://radareart.pages.dev/" }}
+        source={{ uri: "https://danger27.pages.dev/" }}
+        //source={{ uri: "https://radareart.pages.dev/" }}
       />
     </View>
   );

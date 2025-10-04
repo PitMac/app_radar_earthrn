@@ -5,6 +5,7 @@ import {
   FontAwesome5,
   Feather,
   Entypo,
+  MaterialCommunityIcons
 } from "@expo/vector-icons";
 
 const iconFamilies = {
@@ -14,6 +15,7 @@ const iconFamilies = {
   fa5: FontAwesome5,
   feather: Feather,
   entypo: Entypo,
+  materialC:MaterialCommunityIcons
 };
 
 export default function GlobalIcon({
