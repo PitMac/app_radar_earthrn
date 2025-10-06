@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
-import { Appbar } from "react-native-paper";
+import { Appbar, useTheme } from "react-native-paper";
+import { Colors } from "../utils/Colors";
 
 export default function CustomAppBar({
   title,
@@ -11,18 +12,30 @@ export default function CustomAppBar({
   actions = [],
   style,
 }) {
+  const theme = useTheme();
+  const isDark = theme.dark;
+
+  const backgroundColor = isDark ? theme.colors.surface : theme.colors.primary;
+  const contentColor = isDark ? theme.colors.onSurface : "#ffffff";
   return (
-    <Appbar.Header theme={{ colors: { primary: 'green' } }} mode="center-aligned" style={style}>
-      {showBackButton && <Appbar.BackAction onPress={onBackPress} />}
-      {showDrawerButton && (
-        <Appbar.Action icon="menu" onPress={onDrawerPress} />
+    <Appbar.Header style={[{ backgroundColor }, style]} mode="center-aligned">
+      {showBackButton && (
+        <Appbar.BackAction onPress={onBackPress} color={contentColor} />
       )}
-      <Appbar.Content title={title} />
+      {showDrawerButton && (
+        <Appbar.Action
+          icon="menu"
+          onPress={onDrawerPress}
+          color={contentColor}
+        />
+      )}
+      <Appbar.Content title={title} titleStyle={{ color: contentColor }} />
       {actions.map((action, index) => (
         <Appbar.Action
           key={index}
           icon={action.icon}
           onPress={action.onPress}
+          color={contentColor}
         />
       ))}
     </Appbar.Header>

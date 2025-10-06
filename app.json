@@ -13,9 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.radarrearth.app",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.radarrearth.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,6 +26,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b37772db-4069-4b09-8897-e199c17ccc72"
+      }
+    },
+    "owner": "jotaemepe"
   }
 }
