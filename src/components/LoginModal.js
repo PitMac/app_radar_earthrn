@@ -9,6 +9,7 @@ import {
   Divider,
   Text,
 } from "react-native-paper";
+import * as Google from "expo-auth-session/providers/google";
 import { useTheme } from "react-native-paper";
 import { Colors } from "../utils/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -30,6 +31,11 @@ export default function LoginModal() {
     password: "",
   });
 
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId:
+      "560383714945-si48vv1mv22i5hg3v4oae5g9ce6hllg3.apps.googleusercontent.com",
+  });
+
   useEffect(() => {
     showLoginFn = setVisible;
     return () => {
@@ -41,6 +47,15 @@ export default function LoginModal() {
 
   const handleChange = (field) => (value) =>
     setFormFields({ ...formFields, [field]: value });
+
+  const loginGoogle = async () => {
+    try {
+      const result = await promptAsync();
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Portal>
@@ -105,7 +120,7 @@ export default function LoginModal() {
           <Divider />
           <Text>También puede iniciar sesión con:</Text>
           <View style={styles.buttonRow}>
-            <Pressable style={styles.socialButton}>
+            <Pressable onPress={loginGoogle} style={styles.socialButton}>
               <AntDesign name="google" size={25} />
             </Pressable>
 
