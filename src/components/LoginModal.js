@@ -34,6 +34,8 @@ export default function LoginModal() {
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
       "560383714945-si48vv1mv22i5hg3v4oae5g9ce6hllg3.apps.googleusercontent.com",
+       iosClientId:
+      "",
   });
 
   useEffect(() => {
