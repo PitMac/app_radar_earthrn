@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from "react-native";
 import {
   Modal,
   Portal,
@@ -15,6 +22,7 @@ import { Colors } from "../utils/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Pressable } from "react-native";
 import { Image } from "expo-image";
+import instance from "../utils/Instance";
 
 let showLoginFn;
 
@@ -25,8 +33,10 @@ export function showLoginModal() {
 export default function LoginModal() {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [seePassword, setSeePassword] = useState(false);
   const [formFields, setFormFields] = useState({
+    username: "",
     email: "",
     password: "",
   });
@@ -34,9 +44,24 @@ export default function LoginModal() {
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
       "560383714945-si48vv1mv22i5hg3v4oae5g9ce6hllg3.apps.googleusercontent.com",
-       iosClientId:
-      "",
+    iosClientId: "",
   });
+
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
+      setKeyboardOffset(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardOffset(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     showLoginFn = setVisible;
@@ -45,18 +70,41 @@ export default function LoginModal() {
     };
   }, []);
 
-  const hideModal = () => setVisible(false);
+  const hideModal = () => {
+    setVisible(false);
+    setFormFields({ email: "", password: "", name: "" });
+  };
+
+  const hideRegisterModal = () => {
+    setShowRegister(false);
+    setFormFields({ email: "", password: "", name: "" });
+  };
 
   const handleChange = (field) => (value) =>
     setFormFields({ ...formFields, [field]: value });
 
-  const loginGoogle = async () => {
+  const handleloginGoogle = async () => {
     try {
       const result = await promptAsync();
-      console.log(result);
+      if (result?.type === "success" && result.authentication?.idToken) {
+        const idToken = result.authentication.idToken;
+        const apiResponse = await instance.post("api/login-google", {
+          token: idToken,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleLogin = () => {
+    console.log("Registrando:", formFields);
+    hideRegisterModal();
+  };
+
+  const handleRegister = () => {
+    console.log("Registrando:", formFields);
+    hideRegisterModal();
   };
 
   return (
@@ -68,18 +116,24 @@ export default function LoginModal() {
         contentContainerStyle={{
           flex: 1,
           backgroundColor: theme.colors.background,
+          marginBottom: keyboardOffset,
         }}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
-          <View style={styles.header}>
-            <IconButton
-              icon="chevron-left"
-              size={24}
-              onPress={hideModal}
-              style={styles.closeButton}
-            />
-          </View>
-
+        <View style={styles.header}>
+          <IconButton
+            icon="chevron-left"
+            size={24}
+            onPress={hideModal}
+            style={styles.closeButton}
+          />
+        </View>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: 20,
+            justifyContent: "center",
+          }}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -119,10 +173,26 @@ export default function LoginModal() {
               }
             />
           </View>
+          <Button mode="contained">INICIAR SESION</Button>
+          <Text
+            style={{ textAlign: "center", marginTop: 10, marginBottom: 10 }}
+          >
+            ¿No tienes cuenta?{" "}
+            <Text
+              style={{ color: Colors.primary, fontWeight: "bold" }}
+              onPress={() => setShowRegister(true)}
+            >
+              Regístrate
+            </Text>
+          </Text>
           <Divider />
-          <Text>También puede iniciar sesión con:</Text>
+          <Text
+            style={{ textAlign: "center", marginTop: 10, marginBottom: 10 }}
+          >
+            También puede iniciar sesión con:
+          </Text>
           <View style={styles.buttonRow}>
-            <Pressable onPress={loginGoogle} style={styles.socialButton}>
+            <Pressable onPress={handleloginGoogle} style={styles.socialButton}>
               <AntDesign name="google" size={25} />
             </Pressable>
 
@@ -130,6 +200,69 @@ export default function LoginModal() {
               <AntDesign name="apple" size={25} />
             </Pressable>
           </View>
+        </ScrollView>
+      </Modal>
+      <Modal
+        visible={showRegister}
+        onDismiss={hideRegisterModal}
+        dismissable={false}
+        contentContainerStyle={{
+          backgroundColor: theme.colors.background,
+          padding: 20,
+          borderRadius: 12,
+          width: "90%",
+          alignSelf: "center",
+          marginBottom: keyboardOffset,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={hideRegisterModal}
+            style={styles.closeButton}
+          />
+        </View>
+        <ScrollView
+          contentContainerStyle={{
+            paddingVertical: 10,
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
+            Registrarse
+          </Text>
+          <TextInput
+            mode="outlined"
+            label="Nombre completo"
+            value={formFields.name}
+            onChangeText={handleChange("name")}
+            style={{ marginBottom: 10 }}
+          />
+          <TextInput
+            mode="outlined"
+            label="Email"
+            value={formFields.email}
+            onChangeText={handleChange("email")}
+            style={{ marginBottom: 10 }}
+          />
+          <TextInput
+            mode="outlined"
+            secureTextEntry
+            label="Contraseña"
+            value={formFields.password}
+            onChangeText={handleChange("password")}
+            style={{ marginBottom: 20 }}
+          />
+          <Button mode="contained" onPress={handleRegister}>
+            REGISTRARSE
+          </Button>
         </ScrollView>
       </Modal>
     </Portal>
@@ -147,7 +280,6 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
   },
   title: { fontSize: 20, fontWeight: "bold" },
