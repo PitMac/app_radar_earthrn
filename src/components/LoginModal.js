@@ -1,29 +1,23 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-} from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Modal,
   Portal,
   Button,
   IconButton,
   TextInput,
-  Divider,
   Text,
 } from "react-native-paper";
 import * as Google from "expo-auth-session/providers/google";
 import { useTheme } from "react-native-paper";
 import { Colors } from "../utils/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import instance from "../utils/Instance";
-
+import * as AuthSession from "expo-auth-session";
+import { useUserStore } from "../stores/userStore";
+import { showAlert } from "./CustomAlert";
+import CustomLoader from "./CustomLoader";
 let showLoginFn;
 
 export function showLoginModal() {
@@ -33,6 +27,8 @@ export function showLoginModal() {
 export default function LoginModal() {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { expoPushToken } = useUserStore.getState();
   const [showRegister, setShowRegister] = useState(false);
   const [seePassword, setSeePassword] = useState(false);
   const [formFields, setFormFields] = useState({
@@ -45,23 +41,10 @@ export default function LoginModal() {
     androidClientId:
       "560383714945-si48vv1mv22i5hg3v4oae5g9ce6hllg3.apps.googleusercontent.com",
     iosClientId: "",
+    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
   });
 
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-
-  useEffect(() => {
-    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
-      setKeyboardOffset(e.endCoordinates.height);
-    });
-    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardOffset(0);
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
 
   useEffect(() => {
     showLoginFn = setVisible;
@@ -72,12 +55,13 @@ export default function LoginModal() {
 
   const hideModal = () => {
     setVisible(false);
-    setFormFields({ email: "", password: "", name: "" });
+    setFormFields({ email: "", password: "", username: "" });
   };
 
   const hideRegisterModal = () => {
     setShowRegister(false);
-    setFormFields({ email: "", password: "", name: "" });
+    setSeePassword(false);
+    setFormFields({ email: "", password: "", username: "" });
   };
 
   const handleChange = (field) => (value) =>
@@ -97,18 +81,74 @@ export default function LoginModal() {
     }
   };
 
-  const handleLogin = () => {
-    console.log("Registrando:", formFields);
-    hideRegisterModal();
+  const handleLogin = async () => {
+    const { email, password } = formFields;
+    if (!email.trim() || !password.trim()) {
+      showAlert({
+        title: "Error",
+        message: "Por favor, completa todos los campos.",
+      });
+
+      return;
+    }
+
+    try {
+      const response = await instance.post("/auth/login", {
+        email,
+        password,
+        expoPushToken,
+      });
+
+      const userData = response.data;
+
+      useUserStore.getState().setUser(userData);
+    } catch (error) {
+      console.log("Error login:", error);
+      alert("Error al iniciar sesión, revisa tus datos");
+    }
   };
 
-  const handleRegister = () => {
-    console.log("Registrando:", formFields);
-    hideRegisterModal();
+  const handleRegister = async () => {
+    const { username, email, password } = formFields;
+
+    alert(username);
+    if (!username.trim() || !email.trim() || !password.trim()) {
+      alert("Por favor, completa todos los campos.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Por favor, ingresa un correo válido.");
+      return;
+    }
+
+    try {
+      const response = await instance.post("/auth/register", {
+        username,
+        email,
+        password,
+      });
+
+      setFormFields({ username: "", email: "", password: "" });
+      hideRegisterModal();
+
+      alert("Registro exitoso, ya puedes iniciar sesión.");
+    } catch (error) {
+      console.error(
+        "Error al registrar:",
+        error?.response?.data || error.message
+      );
+      alert(
+        error?.response?.data?.message ||
+          "Ocurrió un error al registrar. Intenta nuevamente."
+      );
+    }
   };
 
   return (
     <Portal>
+      <CustomLoader loading={loading} />
       <Modal
         visible={visible}
         onDismiss={hideModal}
@@ -156,15 +196,17 @@ export default function LoginModal() {
             <TextInput
               mode="outlined"
               label="Email"
+              style={{ marginBottom: 5 }}
               value={formFields.email}
               onChangeText={handleChange("email")}
             />
             <TextInput
               mode="outlined"
-              secureTextEntry={!seePassword}
               label="Contraseña"
+              style={{ marginBottom: 10 }}
               value={formFields.password}
               onChangeText={handleChange("password")}
+              secureTextEntry={!seePassword}
               right={
                 <TextInput.Icon
                   icon={seePassword ? "eye-off" : "eye"}
@@ -173,33 +215,66 @@ export default function LoginModal() {
               }
             />
           </View>
-          <Button mode="contained">INICIAR SESION</Button>
-          <Text
-            style={{ textAlign: "center", marginTop: 10, marginBottom: 10 }}
+          <Button onPress={handleLogin} mode="contained">
+            INICIAR SESION
+          </Button>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: 10,
+              paddingHorizontal: 10,
+            }}
           >
-            ¿No tienes cuenta?{" "}
+            <Text style={{ fontSize: 14 }}>¿No tienes cuenta?</Text>
             <Text
-              style={{ color: Colors.primary, fontWeight: "bold" }}
-              onPress={() => setShowRegister(true)}
+              style={{
+                color: theme.dark ? Colors.primaryDark : Colors.primary,
+                fontWeight: "bold",
+                fontSize: 14,
+              }}
+              onPress={() => {
+                setFormFields({ email: "", password: "", username: "" });
+                setShowRegister(true);
+                setSeePassword(false);
+              }}
             >
-              Regístrate
+              Regístrate aquí
             </Text>
-          </Text>
-          <Divider />
-          <Text
-            style={{ textAlign: "center", marginTop: 10, marginBottom: 10 }}
-          >
-            También puede iniciar sesión con:
-          </Text>
-          <View style={styles.buttonRow}>
-            <Pressable onPress={handleloginGoogle} style={styles.socialButton}>
-              <AntDesign name="google" size={25} />
-            </Pressable>
-
-            <Pressable style={styles.socialButton}>
-              <AntDesign name="apple" size={25} />
-            </Pressable>
           </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginVertical: 20,
+            }}
+          >
+            <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+            <Text style={{ marginHorizontal: 10, color: "#888" }}>O</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+          </View>
+          <Button
+            mode="outlined"
+            icon={() => <AntDesign name="google" size={24} color="#DB4437" />}
+            onPress={handleloginGoogle}
+          >
+            Continuar con Google
+          </Button>
+          <View style={{ height: 10 }} />
+          <Button
+            mode="outlined"
+            icon={() => (
+              <AntDesign
+                name="apple"
+                size={24}
+                color={theme.dark ? "white" : "#000"}
+              />
+            )}
+            onPress={handleloginGoogle}
+          >
+            Continuar con Apple
+          </Button>
         </ScrollView>
       </Modal>
       <Modal
@@ -235,7 +310,7 @@ export default function LoginModal() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
             Registrarse
           </Text>
           <TextInput
@@ -243,22 +318,26 @@ export default function LoginModal() {
             label="Nombre completo"
             value={formFields.name}
             onChangeText={handleChange("name")}
-            style={{ marginBottom: 10 }}
           />
           <TextInput
             mode="outlined"
             label="Email"
             value={formFields.email}
             onChangeText={handleChange("email")}
-            style={{ marginBottom: 10 }}
           />
           <TextInput
             mode="outlined"
-            secureTextEntry
             label="Contraseña"
             value={formFields.password}
             onChangeText={handleChange("password")}
             style={{ marginBottom: 20 }}
+            secureTextEntry={!seePassword}
+            right={
+              <TextInput.Icon
+                icon={seePassword ? "eye-off" : "eye"}
+                onPress={() => setSeePassword(!seePassword)}
+              />
+            }
           />
           <Button mode="contained" onPress={handleRegister}>
             REGISTRARSE
@@ -279,6 +358,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
+    marginTop: 15,
+    marginLeft: 10,
     flexDirection: "row",
     alignItems: "center",
   },

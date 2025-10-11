@@ -1,17 +1,29 @@
 import { View, Text, StyleSheet } from "react-native";
-import { Modal, Portal } from "react-native-paper";
+import { Modal, Portal, useTheme } from "react-native-paper";
 import { Image } from "expo-image";
+import {
+  DotIndicator,
+  BarIndicator,
+  BallIndicator,
+  WaveIndicator,
+  UIActivityIndicator,
+  PulseIndicator,
+} from "react-native-indicators";
 
 export default function CustomLoader({ loading, modalStyle, indicatorStyle }) {
+  const theme = useTheme();
   return (
     <Portal>
       <Modal visible={loading}>
         <View style={[styles.modalBackground, modalStyle]}>
-          <View style={[styles.activityIndicatorWrapper, indicatorStyle]}>
-            <Image
-              style={{ width: 100, height: 100, borderRadius: 5 }}
-              source={require("../../assets/videoloading.gif")}
-            />
+          <View
+            style={[
+              styles.activityIndicatorWrapper,
+              { backgroundColor: theme.colors.background },
+              indicatorStyle,
+            ]}
+          >
+            <PulseIndicator color={theme.colors.primary} size={90} />
           </View>
         </View>
       </Modal>

@@ -11,7 +11,7 @@ export const lightTheme = {
     onSecondaryContainer: "black",
     onBackground: "#d5a200",
     background: "#f0f0f0",
-    onSurface:'black'
+    onSurface: "black",
   },
 };
 
@@ -19,7 +19,8 @@ export const darkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: "#bb86fc",
+    primary: Colors.primaryDark,
+    onPrimary: "white",
     secondaryContainer: Colors.primaryDark,
     onSecondaryContainer: "white",
     background: "#121212",
