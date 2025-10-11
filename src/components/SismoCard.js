@@ -3,12 +3,17 @@ import { View, StyleSheet, Modal, Pressable } from 'react-native';
 import { Card, Text, FAB } from 'react-native-paper';
 import { Colors } from '../utils/Colors';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
+import RippleOverlay from "./RippleOverlay";
 
 export default function SismoCard({ feature }) {
     const { properties, geometry } = feature;
     const [modalVisible, setModalVisible] = React.useState(false);
     const [lon, lat, depth] = geometry.coordinates;
     const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const OSM_TILE_URL_BLACK = 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png';
+    const mapRef = React.useRef(null);
+
+
     const initialRegion = {
         latitude: lat,
         longitude: lon,
@@ -16,7 +21,69 @@ export default function SismoCard({ feature }) {
         longitudeDelta: 0.1,
     };
 
-    const mapRef = React.useRef(null); // 👈 Referencia para el MapView
+    const modalTargetRegion = {
+        latitude: lat,
+        longitude: lon,
+        latitudeDelta: 0.2,
+        longitudeDelta: 0.2
+    };
+
+    const MAGNITUDE_COLORS = {
+        GREEN: '#4CAF50',
+        YELLOW: '#FFC107',
+        RED: '#F44336',
+        VIOLET: '#9C27B0',
+        DEFAULT: Colors.primary
+    };
+
+    const RIPPLE_PARAMS = {
+        // mag <= 3.4: 45 km de radio máximo, 1.8s de duración
+        GREEN: { maxR: 45000, dur: 1800 },
+        // 3.5 <= mag <= 4.4: 80 km de radio máximo, 2.2s de duración
+        YELLOW: { maxR: 80000, dur: 2200 },
+        // 4.5 <= mag <= 5.4: 120 km de radio máximo, 2.6s de duración
+        RED: { maxR: 120000, dur: 2600 },
+        // mag > 5.5: 180 km de radio máximo, 3.0s de duración
+        VIOLET: { maxR: 180000, dur: 3000 },
+    };
+
+    const getMagnitudeColor = (mag) => {
+        if (mag > 5.5) {
+            return MAGNITUDE_COLORS.VIOLET;
+        } else if (mag >= 4.5) {
+            return MAGNITUDE_COLORS.RED;
+        } else if (mag >= 3.5) {
+            return MAGNITUDE_COLORS.YELLOW;
+        } else if (mag >= 0) {
+            return MAGNITUDE_COLORS.GREEN;
+        }
+        return MAGNITUDE_COLORS.DEFAULT;
+    };
+
+    const getRippleParams = (mag) => {
+        if (mag > 5.5) {
+            return RIPPLE_PARAMS.VIOLET;
+        } else if (mag >= 4.5) {
+            return RIPPLE_PARAMS.RED;
+        } else if (mag >= 3.5) {
+            return RIPPLE_PARAMS.YELLOW;
+        } else if (mag >= 0) {
+            return RIPPLE_PARAMS.GREEN;
+        }
+        return RIPPLE_PARAMS.GREEN;
+    };
+
+    function hexToRgba(hex, alpha = 1) {
+        let c = hex.replace('#', '');
+        if (c.length === 3) {
+            c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        }
+        const num = parseInt(c, 16);
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
 
     const formatTime = (timestamp) => {
         const date = new Date(timestamp);
@@ -24,21 +91,13 @@ export default function SismoCard({ feature }) {
         return date.toLocaleDateString() + ' | ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
     };
 
-    // Región de zoom del modal (donde queremos volver)
-    const modalTargetRegion = {
-        latitude: lat,
-        longitude: lon,
-        latitudeDelta: 0.15,
-        longitudeDelta: 0.15
-    };
-
     const handleRecenter = () => {
         if (mapRef.current) {
-            // Animamos la vista del mapa de vuelta a la región objetivo
-            mapRef.current.animateToRegion(modalTargetRegion, 500); // 500ms de animación
+            mapRef.current.animateToRegion(modalTargetRegion, 500);
         }
     };
 
+    const ripple = getRippleParams(properties.mag);
     return (
         <Card
             style={styles.card}
@@ -48,7 +107,7 @@ export default function SismoCard({ feature }) {
             <View style={styles.cardContent}>
                 <View style={styles.detailsContainer}>
                     <View style={styles.magnitudeBox}>
-                        <Text style={styles.magnitudeText}>
+                        <Text style={[styles.magnitudeText, { color: getMagnitudeColor(properties.mag) }]}>
                             {properties.mag.toFixed(1)}
                         </Text>
                         <Text style={styles.magnitudeLabel}>
@@ -88,7 +147,7 @@ export default function SismoCard({ feature }) {
 
                         <Marker
                             coordinate={{ latitude: lat, longitude: lon }}
-                            pinColor={Colors.primary}
+                            pinColor={getMagnitudeColor(properties.mag)}
                             tracksViewChanges={false}
                             onPress={() => { }}
                             onLongPress={() => { }}
@@ -106,32 +165,67 @@ export default function SismoCard({ feature }) {
             >
                 <Pressable
                     style={styles.centeredView}
-                    onPress={() => setModalVisible(false)} // CIERRA AL TOCAR EL FONDO
+                    onPress={() => setModalVisible(false)}
                 >
                     <Pressable
                         style={styles.modalView}
                         onPress={(e) => e.stopPropagation()}
                     >
-                        <MapView
-                            ref={mapRef}
-                            style={styles.fullMapView}
-                            initialRegion={modalTargetRegion}
-                            scrollEnabled={true}
-                            zoomEnabled={true}
-                        >
-                            <UrlTile urlTemplate={OSM_TILE_URL} />
-                            <Marker
-                                coordinate={{ latitude: lat, longitude: lon }}
-                                pinColor={Colors.primary}
+                        <View style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                            <MapView
+                                key={modalVisible ? 'map-active' : 'map-inactive'}
+                                ref={mapRef}
+                                style={styles.fullMapView}
+                                initialRegion={modalTargetRegion}
+                                scrollEnabled={false}
+                                zoomEnabled={false}
+                                rotateEnabled={false}
+                                pitchEnabled={false}
+                                toolbarEnabled={false}
+                            >
+                                <UrlTile urlTemplate={OSM_TILE_URL} />
+                                {/*} <Marker
+                                    coordinate={{ latitude: lat, longitude: lon }}
+                                    pinColor={getMagnitudeColor(properties.mag)}
+                                />*/}
+                                <Marker
+                                    coordinate={{ latitude: lat, longitude: lon }}
+                                    tracksViewChanges={false}
+                                    onPress={() => { }}
+                                >
+                                    <View style={{
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: 16,
+                                        backgroundColor: getMagnitudeColor(properties.mag),
+                                        borderWidth: 2,
+                                        borderColor: 'transparent',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        shadowColor: '#000',
+                                        shadowOpacity: 0.3,
+                                        shadowRadius: 2,
+                                        elevation: 3
+                                    }}>
+                                        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>{properties.mag.toFixed(1)}</Text>
+                                    </View>
+                                </Marker>
+                            </MapView>
+                            <RippleOverlay
+                                size={180}
+                                color={hexToRgba(getMagnitudeColor(properties.mag), 0.25)}
+                                duration={ripple.dur}
+                                isPulsing={modalVisible}
+                                style={{ position: 'absolute', left: '50%', top: '50%', transform: [{ translateX: -90 }, { translateY: -90 }] }}
                             />
-                        </MapView>
-                        <FAB
+                        </View>
+                        {/*<FAB
                             icon="crosshairs-gps"
                             small={true}
                             onPress={handleRecenter}
                             style={styles.recenterButton}
                             color="white"
-                        />
+                        />*/}
                         {/*
                         <Pressable
                             style={styles.closeButton}
@@ -181,10 +275,10 @@ const styles = StyleSheet.create({
         marginTop: -5,
     },
     depthText: {
-        fontSize: 10, // Pequeño y sutil
-        color: Colors.primaryDrawer,
+        fontSize: 10,
+        color: Colors.primary,
         fontWeight: 'bold',
-        marginTop: 5, // Espacio entre MAG y Profundidad
+        marginTop: 5,
     },
     infoBox: {
         flex: 1,
@@ -202,7 +296,7 @@ const styles = StyleSheet.create({
     },
 
     mapContainer: {
-        width: 120, // Ancho fijo para el mini-mapa
+        width: 120,
         height: '100%',
         overflow: 'hidden',
         borderTopRightRadius: 10,
@@ -211,20 +305,18 @@ const styles = StyleSheet.create({
     mapView: {
         flex: 1,
     },
-
-    // --- ESTILOS DEL MODAL ---
     centeredView: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Fondo oscuro y semitransparente
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     modalView: {
-        width: '90%', // Ocupa la mayor parte de la pantalla
-        height: '60%', // Altura generosa
+        width: '90%',
+        height: '60%',
         backgroundColor: 'white',
         borderRadius: 20,
-        overflow: 'hidden', // Importante para que el mapa respete el borderRadius
+        overflow: 'hidden',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -240,14 +332,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 15,
         padding: 10,
-        backgroundColor: Colors.primary, // Usa tu color principal
+        backgroundColor: Colors.primary,
         borderRadius: 20,
     },
     recenterButton: {
         position: 'absolute',
-        top: 20, // Distancia desde arriba
-        right: 20, // Distancia desde la derecha
-        backgroundColor: Colors.primary, // Usa tu color principal
-        zIndex: 10, // Asegura que esté por encima del mapa
+        top: 20,
+        right: 20,
+        backgroundColor: Colors.primary,
+        zIndex: 10,
     },
 });

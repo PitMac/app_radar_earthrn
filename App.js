@@ -6,6 +6,8 @@ import { useThemeStore } from "./src/stores/themeStore";
 import LoginModal from "./src/components/LoginModal";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Onboarding from "./src/components/Onboarding";
 import { registerForPushNotificationsAsync } from "./src/utils/PushNotifications";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
@@ -24,6 +26,7 @@ Notifications.setNotificationHandler({
 export default function App() {
   const { theme, darkMode } = useThemeStore();
   const setExpoPushToken = useUserStore((state) => state.setExpoPushToken);
+  const [showOnboarding, setShowOnboarding] = useState(null);
 
   useEffect(() => {
     let notificationListener;
@@ -41,12 +44,16 @@ export default function App() {
       }
     );
 
-    // Escuchar cuando el usuario responde a la notificación
     responseListener = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         // manejar navegación o acciones según respuesta
       }
     );
+
+    AsyncStorage.getItem("onboarding_shown").then((value) => {
+      //setShowOnboarding(value !== "true");
+      setShowOnboarding(false);
+    });
 
     // Cleanup
     return () => {
@@ -54,6 +61,17 @@ export default function App() {
       responseListener.remove();
     };
   }, []);
+
+  const handleFinishOnboarding = async () => {
+    await AsyncStorage.setItem("onboarding_shown", "true");
+    setShowOnboarding(false);
+  };
+
+  if (showOnboarding === null) return null;
+
+  if (showOnboarding) {
+    return <Onboarding onFinish={handleFinishOnboarding} />;
+  }
 
   return (
     <PaperProvider theme={theme}>

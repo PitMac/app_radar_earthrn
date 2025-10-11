@@ -8,12 +8,14 @@ import EmptyList from "../components/EmptyList";
 import { List, Card, Text } from 'react-native-paper';
 import { Colors } from "../utils/Colors";
 import SismoCard from "../components/SismoCard";
+import CustomLoader from "../components/CustomLoader";
 
 export default function ActivitiesScreen() {
     const navigation = useNavigation();
     const keyExtractor = (item, index) => index.toString();
     const [actividades, setActividades] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         getLastActividades();
@@ -172,16 +174,16 @@ export default function ActivitiesScreen() {
                 }
             }]);
 
-            setIsRefreshing(false);
+        setIsRefreshing(false);
     }
 
     return (
         <View>
+            <CustomLoader loading={isLoading} />
             <CustomAppBar
                 title="Actividades"
                 showDrawerButton
                 onDrawerPress={() => navigation.openDrawer()}
-                //style={{marginBottom:-30 }}
             />
             <View style={{ height: '85%', width: '100%' }}>
                 <FlatList
