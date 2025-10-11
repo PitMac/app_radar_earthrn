@@ -1,169 +1,199 @@
-import { View, Text,FlatList, } from "react-native";
-import React, {useEffect, useState} from "react";
+import { View, FlatList, StyleSheet, Image } from "react-native";
+import React, { useEffect, useState } from "react";
 import CustomAppBar from "../components/CustomAppBar";
 import { useNavigation } from "@react-navigation/native";
 import GlobalIcon from "../components/GlobalIcon";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyList from "../components/EmptyList";
+import { List, Card, Text } from 'react-native-paper';
+import { Colors } from "../utils/Colors";
+import SismoCard from "../components/SismoCard";
 
 export default function ActivitiesScreen() {
-  const navigation = useNavigation();
-  const keyExtractor = (item, index) => index.toString();
-  const [actividades, setActividades] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+    const navigation = useNavigation();
+    const keyExtractor = (item, index) => index.toString();
+    const [actividades, setActividades] = useState([]);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = () => {
-      setIsRefreshing(true);
-      //getDeudas();
-  }
-
-    const renderActividades = (item, index) => {
-      console.log(item);
-        return (
-            <View>
-
-            </View>
-        )
-    }
     useEffect(() => {
+        getLastActividades();
+    }, []);
+
+    const handleRefresh = () => {
+        setActividades([]);
+        setIsRefreshing(true);
+        getLastActividades();
+    }
+
+    const getLastActividades = () => {
         setActividades([
             {
                 "type": "Feature",
-                "id": "22251862",
+                "id": "22261552",
                 "properties": {
-                    "time": 1759896192000,
-                    "mag": 2.5,
-                    "place": "New Zealand",
+                    "time": 1760120487000,
+                    "mag": 2.8,
+                    "place": "Flores Sea, 34 km NW of Pulau Medang Island, West Nusa Tenggara, Indonesia",
+                    "source": "BMKG",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        174.76162,
-                        -38.93398,
-                        24.5
+                        117.18,
+                        -7.91,
+                        16
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251846",
+                "id": "22261557",
                 "properties": {
-                    "time": 1759895636000,
-                    "mag": 3,
-                    "place": "Cyclades Isls.- S. Greece",
+                    "time": 1760120220000,
+                    "mag": 3.9,
+                    "place": "Philippine Sea, 49 km ESE of Manay, Philippines",
+                    "source": "PHIVOLCS",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        25.71207,
-                        36.70921,
-                        206.8
+                        126.96,
+                        7.06,
+                        11
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251850",
+                "id": "22261543",
                 "properties": {
-                    "time": 1759895448000,
-                    "mag": 5.4,
-                    "place": "South Sandwich Islands Region",
+                    "time": 1760120122000,
+                    "mag": 4.4,
+                    "place": "Philippine Sea, 64 km SE of Manay, Philippines",
+                    "source": "BMKG",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        -24.3806,
-                        -57.6808,
+                        127,
+                        6.87,
                         10
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251839",
+                "id": "22261539",
                 "properties": {
-                    "time": 1759895402000,
-                    "mag": 3,
-                    "place": "Offshore EL Salvador",
+                    "time": 1760120090000,
+                    "mag": 2.6,
+                    "place": "17 km SSE of Tarutung, Kabupaten Tapanuli Utara, North Sumatra, Indonesia",
+                    "source": "BMKG",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        -88.7122,
-                        12.8977,
-                        51.2
+                        99.04,
+                        1.88,
+                        10
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251812",
+                "id": "22261538",
                 "properties": {
-                    "time": 1759894885000,
-                    "mag": 2.4,
-                    "place": "59 km N of Petersville, Alaska",
+                    "time": 1760119916000,
+                    "mag": 3.1,
+                    "place": "Indian Ocean, 94 km S of Kepanjen, Kabupaten Malang, Jawa Timur, Indonesia",
+                    "source": "BMKG",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        -150.8884,
-                        63.0292,
-                        119.1
+                        112.43,
+                        -8.96,
+                        36
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251836",
+                "id": "22261545",
                 "properties": {
-                    "time": 1759894680000,
-                    "mag": 2.3,
-                    "place": "Philippines: 004 km N 28° E of Cortes (Surigao Del Sur)",
+                    "time": 1760119824000,
+                    "mag": 3.4,
+                    "place": "Philippine Sea, 59 km E of Manay, Province of Davao Oriental, Davao, Philippines",
+                    "source": "EMSC",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        126.21,
-                        9.31,
-                        21
+                        127.06,
+                        7.11,
+                        20
                     ]
                 }
             },
             {
                 "type": "Feature",
-                "id": "22251821",
+                "id": "22261526",
                 "properties": {
-                    "time": 1759894564000,
-                    "mag": 4.6,
-                    "place": "Russia: 204 km From Petropavlovsk-Kamchatskiy",
+                    "time": 1760119636000,
+                    "mag": 2.9,
+                    "place": "South Pacific Ocean, 97 km NW of Vallenar, Huasco, Region de Atacama, Chile",
+                    "source": "CSN",
                 },
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        161.6575,
-                        52.759,
-                        15.08
+                        -71.496,
+                        -28,
+                        36
+                    ]
+                }
+            },
+            {
+                "type": "Feature",
+                "id": "22261564",
+                "properties": {
+                    "time": 1760119560000,
+                    "mag": 2.5,
+                    "place": "Philippine Sea, 3.2 km NNW of Bogo, Philippines",
+                    "source": "PHIVOLCS",
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        124,
+                        11.08,
+                        15
                     ]
                 }
             }]);
-    }, []);
-  return (
-    <View>
-      <CustomAppBar
-        title="Actividades"
-        showDrawerButton
-        onDrawerPress={() => navigation.openDrawer()}
-      />
-        <SafeAreaView style={{ height:'80%',width: '100%', }}>
-            <FlatList
-                keyExtractor={keyExtractor}
-                data={actividades}
-                renderItem={({ item, index }) => renderActividades(item, index)}
-                ListEmptyComponent={<EmptyList message="¡Todo en calma por ahora!" message2="Sin eventos sísmicos recientes detectados." />}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
+
+            setIsRefreshing(false);
+    }
+
+    return (
+        <View>
+            <CustomAppBar
+                title="Actividades"
+                showDrawerButton
+                onDrawerPress={() => navigation.openDrawer()}
+                //style={{marginBottom:-30 }}
             />
-        </SafeAreaView>
-    </View>
-  );
+            <View style={{ height: '85%', width: '100%' }}>
+                <FlatList
+                    keyExtractor={keyExtractor}
+                    data={actividades}
+                    renderItem={({ item }) => <SismoCard feature={item} />}
+                    ListEmptyComponent={<EmptyList message="¡Todo en calma por ahora!" message2="Sin eventos sísmicos recientes detectados." />}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                />
+            </View>
+        </View>
+    );
 }
+
