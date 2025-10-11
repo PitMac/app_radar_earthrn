@@ -46,66 +46,67 @@ export default function UpgradeProModal() {
         dismissable={false}
         contentContainerStyle={{
           overflow: "hidden",
-          backgroundColor:theme.colors.surface,
+          backgroundColor: theme.colors.surface,
           margin: 20,
           borderRadius: 8,
           borderColor: "grey",
           borderWidth: 1,
-          padding:15
+          padding: 15,
         }}
       >
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Image
-              style={{ width: 50, height: 50, borderRadius: 5 }}
-              source={require("../../assets/logo.jpeg")}
-            />
-            <Text style={styles.title}>¡Mejora a PRO!</Text>
-            <IconButton
-              icon="close"
-              size={24}
-              onPress={hideModal}
-              style={styles.closeButton}
-            />
-          </View>
-          <View style={{ marginVertical: 10 }}>
-            {beneficios.map((item) => (
-              <View key={item.id} style={styles.itemRow}>
-                <FontAwesome
-                  name="check-square"
-                  size={24}
-                  color={Colors.primary}
-                />
-                <Text style={styles.itemText}>{item.text}</Text>
-              </View>
-            ))}
-          </View>
-          <Button
-            mode="contained"
-            style={{ backgroundColor: Colors.primary }}
-            onPress={() => {
-              hideModal();
-            }}
-          >
-            Mensual USD 0.99
-          </Button>
-          <View style={{ marginVertical: 5 }} />
-          <Button
-            mode="contained"
-            style={{ backgroundColor: Colors.secondary }}
-            onPress={() => {
-              console.log("Suscripción anual");
-              hideModal();
-            }}
-          >
-            Anual USD 3.99
-          </Button>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Image
+            style={{ width: 50, height: 50, borderRadius: 5 }}
+            source={require("../../assets/logo.jpeg")}
+          />
+          <Text style={[styles.title, { color: theme.colors.primary }]}>
+            ¡MEJORA A PRO!
+          </Text>
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={hideModal}
+            style={styles.closeButton}
+          />
+        </View>
+        <View style={{ marginVertical: 10 }}>
+          {beneficios.map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <FontAwesome
+                name="check-square"
+                size={24}
+                color={theme.colors.primary}
+              />
+              <Text style={styles.itemText}>{item.text}</Text>
+            </View>
+          ))}
+        </View>
+        <Button
+          mode="contained"
+          style={{ backgroundColor: theme.colors.primary }}
+          onPress={() => {
+            hideModal();
+          }}
+        >
+          Mensual USD 0.99
+        </Button>
+        <View style={{ marginVertical: 5 }} />
+        <Button
+          mode="contained"
+          style={{ backgroundColor: Colors.secondary }}
+          onPress={() => {
+            console.log("Suscripción anual");
+            hideModal();
+          }}
+        >
+          Anual USD 3.99
+        </Button>
       </Modal>
     </Portal>
   );
@@ -120,7 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: Colors.primary,
   },
   itemRow: {
     flexDirection: "row",

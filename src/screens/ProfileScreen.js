@@ -25,6 +25,7 @@ export default function ProfileScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
 
+  const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({
     image: null,
     username: "Usuario123",
@@ -36,6 +37,11 @@ export default function ProfileScreen() {
   };
 
   const handleSave = () => {
+    if (!editMode) {
+      setEditMode(true);
+    } else {
+      setEditMode(false);
+    }
     console.log("Guardar cambios:", profile);
   };
 
@@ -118,8 +124,8 @@ export default function ProfileScreen() {
       </ScrollView>
 
       <FAB
-        icon="content-save"
-        label="Guardar"
+        icon={editMode ? "content-save" : "square-edit-outline"}
+        label={editMode ? "Guardar" : "Editar"}
         color={theme.colors.onPrimary}
         mode="flat"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
