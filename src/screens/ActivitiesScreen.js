@@ -1,5 +1,7 @@
-import { View, FlatList, StyleSheet, Image } from "react-native";
+import { View, FlatList, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import HelpModal from '../components/HelpModal';
 import CustomAppBar from "../components/CustomAppBar";
 import { useNavigation } from "@react-navigation/native";
 import GlobalIcon from "../components/GlobalIcon";
@@ -16,6 +18,7 @@ export default function ActivitiesScreen() {
     const [actividades, setActividades] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [helpVisible, setHelpVisible] = useState(false);
 
     useEffect(() => {
         getLastActividades();
@@ -184,6 +187,11 @@ export default function ActivitiesScreen() {
                 title="Actividades"
                 showDrawerButton
                 onDrawerPress={() => navigation.openDrawer()}
+                rightComponent={
+                    <TouchableOpacity onPress={() => setHelpVisible(true)} style={{ marginRight: 8 }}>
+                        <Ionicons name="help-circle" size={28} color="#FFFFFF" />
+                    </TouchableOpacity>
+                }
             />
             <View style={{ height: '85%', width: '100%' }}>
                 <FlatList
@@ -195,6 +203,7 @@ export default function ActivitiesScreen() {
                     onRefresh={handleRefresh}
                 />
             </View>
+            <HelpModal visible={helpVisible} onClose={() => setHelpVisible(false)} />
         </View>
     );
 }

@@ -1,182 +1,249 @@
-import {
-  View,
-  StyleSheet,
-  ImageBackground,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
 import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import CustomAppBar from "../components/CustomAppBar";
-import {
-  Avatar,
-  Button,
-  FAB,
-  IconButton,
-  Text,
-  TextInput,
-  useTheme,
-} from "react-native-paper";
-import {} from "expo-image";
-import { BlurView } from "expo-blur";
+import { View, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import { Text, TextInput, Button, Switch, Appbar, Divider } from "react-native-paper";
 import GlobalIcon from "../components/GlobalIcon";
+import { Colors } from "../utils/Colors";
+
+
+const REGIONS = [
+  "Latinoamérica",
+  "Norteamérica",
+  "Europa",
+  "Asia",
+  "Oceanía",
+  "África",
+];
+
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
-  const theme = useTheme();
-
-  const [editMode, setEditMode] = useState(false);
-  const [profile, setProfile] = useState({
-    image: null,
-    username: "Usuario123",
-    email: "usuario@ejemplo.com",
-  });
-
-  const handleChange = (field, value) => {
-    setProfile((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = () => {
-    if (!editMode) {
-      setEditMode(true);
-    } else {
-      setEditMode(false);
-    }
-    console.log("Guardar cambios:", profile);
-  };
-
-  const handleUploadImage = () => {
-    console.log("Abrir selector de imagen...");
-  };
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [region, setRegion] = useState(REGIONS[0]);
+  const [showRegionList, setShowRegionList] = useState(false);
+  const [internationalAlerts, setInternationalAlerts] = useState(false);
+  const [pushNotifications, setPushNotifications] = useState(true);
 
   return (
-    <View style={{ flex: 1 }}>
-      {/*  <CustomAppBar
-        title="Perfil"
-        showDrawerButton
-        onDrawerPress={() => navigation.openDrawer()}
-      /> */}
-
-      <View style={styles.headerContainer}>
-        <ImageBackground
-          source={
-            profile.image
-              ? { uri: profile.image }
-              : require("../../assets/icon.png")
-          }
-          style={styles.headerImage}
-          blurRadius={profile.image ? 0 : 5}
-        >
-          <BlurView
-            intensity={50}
-            tint={theme.dark ? "dark" : "light"}
-          ></BlurView>
-          <IconButton
-            icon="menu"
-            style={styles.backButton}
-            mode="contained-tonal"
-            iconColor={theme.colors.onPrimary}
-            containerColor={theme.colors.primary}
-            size={25}
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Portada azul */}
+        <View style={styles.cover}>
+          <TouchableOpacity
+            style={styles.menuButton}
             onPress={() => navigation.openDrawer()}
+            activeOpacity={0.7}
+          >
+            <GlobalIcon family="materialC" name="menu" size={28} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.avatarContainer}>
+            <TouchableOpacity>
+              <Image
+                source={require('../../assets/icon.png')}
+                style={styles.avatar}
+              />
+              <View style={styles.avatarEditCircle}>
+                <GlobalIcon
+                  family="materialC"
+                  name="pencil"
+                  size={20}
+                  color="#fff"
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* Card de datos */}
+        <View style={styles.card}>
+          <Text style={styles.label}>Nombre de usuario</Text>
+          <TextInput
+            mode="outlined"
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Tu nombre"
+            style={styles.input}
           />
-          {!profile.image && (
-            <Button
-              icon="camera"
-              style={styles.uploadButton}
-              mode="text"
-              onPress={() => console.log("Pressed")}
-            >
-              Subir imagen
-            </Button>
+          <Text style={styles.label}>Correo electrónico</Text>
+          <TextInput
+            mode="outlined"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="correo@ejemplo.com"
+            style={styles.input}
+            keyboardType="email-address"
+          />
+          <Button
+            mode="contained-tonal"
+            style={styles.button}
+            onPress={() => {}}
+            icon="lock-reset"
+          >
+            Cambiar contraseña
+          </Button>
+          <Divider style={{ marginVertical: 16 }} />
+          <Text style={styles.label}>Región</Text>
+          <TouchableOpacity
+            style={styles.select}
+            onPress={() => setShowRegionList(!showRegionList)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.selectText}>{region}</Text>
+            <Text style={{ fontSize: 18, color: Colors.primary }}>▼</Text>
+          </TouchableOpacity>
+          {showRegionList && (
+            <View style={styles.regionList}>
+              {REGIONS.map((r) => (
+                <TouchableOpacity
+                  key={r}
+                  style={styles.regionItem}
+                  onPress={() => {
+                    setRegion(r);
+                    setShowRegionList(false);
+                  }}
+                >
+                  <Text style={{ color: Colors.primary, fontWeight: region === r ? 'bold' : 'normal' }}>{r}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
-          {/*   <GlobalIcon
-              family="ion"
-              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              color="#fff"
-              size={26}
-            /> */}
-        </ImageBackground>
-      </View>
-      <ScrollView
-        style={styles.contentContainer}
-        contentContainerStyle={{ paddingBottom: 100, flex: 1 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <TextInput
-          label="Nombre de usuario"
-          mode="outlined"
-          value={profile.username}
-          onChangeText={(value) => handleChange("username", value)}
-          left={<TextInput.Icon icon="account" />}
-          style={styles.input}
-        />
-
-        <TextInput
-          label="Correo electrónico"
-          mode="outlined"
-          value={profile.email}
-          onChangeText={(value) => handleChange("email", value)}
-          left={<TextInput.Icon icon="email" />}
-          style={styles.input}
-          keyboardType="email-address"
-        />
+          <Divider style={{ marginVertical: 16 }} />
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Alertas internacionales</Text>
+            <Switch value={internationalAlerts} onValueChange={setInternationalAlerts} color={Colors.primary} />
+          </View>
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Push notifications</Text>
+            <Switch value={pushNotifications} onValueChange={setPushNotifications} color={Colors.primary} />
+          </View>
+          <Divider style={{ marginVertical: 16 }} />
+          <Button mode="contained" style={styles.saveButton} onPress={() => {}} icon="content-save">
+            Guardar cambios
+          </Button>
+        </View>
       </ScrollView>
-
-      <FAB
-        icon={editMode ? "content-save" : "square-edit-outline"}
-        label={editMode ? "Guardar" : "Editar"}
-        color={theme.colors.onPrimary}
-        mode="flat"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={handleSave}
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    height: 250,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    overflow: "hidden",
+  scrollContent: {
+    alignItems: 'center',
+    paddingBottom: 40,
+    backgroundColor: Colors.background,
   },
-  headerImage: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  cover: {
+    width: '100%',
+    height: 140,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 0,
   },
-  blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 15,
-    padding: 2,
+  menuButton: {
+    position: 'absolute',
+    left: 18,
     zIndex: 10,
+    borderRadius: 20,
+    padding: 4,
+    top: '80%',
+    transform: [{ translateY: -20 }], 
   },
   avatarContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    position: 'absolute',
+    top: 70,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 2,
   },
-  uploadButton: {
-    position: "absolute",
-    bottom: 5,
-    right: 5,
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 4,
+    borderColor: '#fff',
+    backgroundColor: '#eee',
   },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    marginTop: 10,
+  avatarEditCircle: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.primary,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  card: {
+    marginTop: 60,
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    alignItems: 'stretch',
+  },
+  label: {
+    fontWeight: 'bold',
+    color: Colors.primary,
+    marginBottom: 4,
+    marginTop: 12,
   },
   input: {
-    marginVertical: 10,
+    marginBottom: 8,
+    backgroundColor: '#f7f7f7',
   },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
+  button: {
+    marginTop: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  select: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 8,
+    backgroundColor: '#f7f7f7',
+  },
+  selectText: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  regionList: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    marginBottom: 8,
+    marginTop: -8,
+    zIndex: 10,
+  },
+  regionItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  saveButton: {
+    marginTop: 10,
+    borderRadius: 8,
   },
 });

@@ -51,8 +51,7 @@ export default function App() {
     );
 
     AsyncStorage.getItem("onboarding_shown").then((value) => {
-      //setShowOnboarding(value !== "true");
-      setShowOnboarding(false);
+      setShowOnboarding(value !== "true");
     });
 
     // Cleanup

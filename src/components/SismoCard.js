@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Modal, Pressable } from 'react-native';
-import { Card, Text, FAB } from 'react-native-paper';
+import { Card, Text, FAB,useTheme } from 'react-native-paper';
 import { Colors } from '../utils/Colors';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 import RippleOverlay from "./RippleOverlay";
+import { useThemeStore } from "../stores/themeStore";
 
 export default function SismoCard({ feature }) {
     const { properties, geometry } = feature;
+    const theme = useTheme();
+    const darkMode = useThemeStore((state) => state.darkMode);
     const [modalVisible, setModalVisible] = React.useState(false);
     const [lon, lat, depth] = geometry.coordinates;
     const OSM_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     const OSM_TILE_URL_BLACK = 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png';
     const mapRef = React.useRef(null);
-
 
     const initialRegion = {
         latitude: lat,
@@ -100,9 +102,9 @@ export default function SismoCard({ feature }) {
     const ripple = getRippleParams(properties.mag);
     return (
         <Card
-            style={styles.card}
+            style={[styles.card,{ backgroundColor: theme.colors.surface}]}
             elevation={2}
-            onPress={() => console.log('Ver sismo:', feature.id)}
+            onPress={() => {}}
         >
             <View style={styles.cardContent}>
                 <View style={styles.detailsContainer}>
@@ -113,13 +115,13 @@ export default function SismoCard({ feature }) {
                         <Text style={styles.magnitudeLabel}>
                             MAG
                         </Text>
-                        <Text style={styles.depthText}>
+                        <Text style={[styles.depthText,{color: darkMode ? 'gray' : Colors.primary}]}>
                             D:{depth}km
                         </Text>
                     </View>
 
                     <View style={styles.infoBox}>
-                        <Text style={styles.titleText} numberOfLines={2}>
+                        <Text style={[styles.titleText,{color: darkMode ? 'white' : 'black'}]} numberOfLines={3}>
                             {properties.place}
                         </Text>
                         <Text style={styles.dateText}>
@@ -143,7 +145,7 @@ export default function SismoCard({ feature }) {
                         rotateEnabled={false}
                         pitchEnabled={false}
                     >
-                        <UrlTile urlTemplate={OSM_TILE_URL} />
+                        <UrlTile urlTemplate={!darkMode ? OSM_TILE_URL : OSM_TILE_URL_BLACK} />
 
                         <Marker
                             coordinate={{ latitude: lat, longitude: lon }}
@@ -183,7 +185,7 @@ export default function SismoCard({ feature }) {
                                 pitchEnabled={false}
                                 toolbarEnabled={false}
                             >
-                                <UrlTile urlTemplate={OSM_TILE_URL} />
+                                <UrlTile urlTemplate={!darkMode ? OSM_TILE_URL : OSM_TILE_URL_BLACK} />
                                 {/*} <Marker
                                     coordinate={{ latitude: lat, longitude: lon }}
                                     pinColor={getMagnitudeColor(properties.mag)}
@@ -276,7 +278,6 @@ const styles = StyleSheet.create({
     },
     depthText: {
         fontSize: 10,
-        color: Colors.primary,
         fontWeight: 'bold',
         marginTop: 5,
     },
@@ -286,15 +287,13 @@ const styles = StyleSheet.create({
     },
     titleText: {
         fontSize: 15,
-        fontWeight: '600',
-        color: 'black',
+        fontWeight: '600'
     },
     dateText: {
         fontSize: 12,
         color: 'gray',
         marginTop: 4,
     },
-
     mapContainer: {
         width: 120,
         height: '100%',
