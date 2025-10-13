@@ -32,6 +32,14 @@
         "projectId": "b37772db-4069-4b09-8897-e199c17ccc72"
       }
     },
-    "owner": "jotaemepe"
+    "owner": "jotaemepe",
+    "plugins": [
+      "expo-build-properties",
+      {
+        "ios": {
+          "useFrameworks": "static"
+        }
+      }
+    ]
   }
 }
