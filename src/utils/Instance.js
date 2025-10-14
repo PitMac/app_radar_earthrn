@@ -12,7 +12,7 @@ instance.interceptors.request.use(
   async (config) => {
     const configuration = await AsyncStorage.getItem("configuration");
     const storage = JSON.parse(configuration);
-    config.baseURL = storage.licensed.route;
+    config.baseURL = "http://localhost:3000/api/v1"; //storage.licensed.route;
     if (storage.encodetoken) {
       config.headers["Authorization"] = `Bearer ${storage.encodetoken}`;
     }

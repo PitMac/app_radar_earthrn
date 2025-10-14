@@ -141,8 +141,8 @@ export default function CustomDrawer(props) {
           onPress={() => {
             if (visible) {
               props.navigation.goBack();
-              //showLoginModal();
-              showModalUpgradePro();
+              showLoginModal();
+              // showModalUpgradePro();
             } else {
               setActive(2);
               props.navigation.navigate("Perfil");

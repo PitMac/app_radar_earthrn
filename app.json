@@ -2,6 +2,7 @@
   "expo": {
     "name": "app_radarrearthrn",
     "slug": "app_radarrearthrn",
+    "scheme": "app_radarrearthrn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +23,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDqD9gbgL0aV9_xluJog6ozteYK2OXJnos"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,12 +40,20 @@
     },
     "owner": "jotaemepe",
     "plugins": [
-      "expo-build-properties",
-      {
-        "ios": {
-          "useFrameworks": "static"
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
-      }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
+        }
+      ]
     ]
   }
 }

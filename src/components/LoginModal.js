@@ -39,9 +39,9 @@ export default function LoginModal() {
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
-      "560383714945-si48vv1mv22i5hg3v4oae5g9ce6hllg3.apps.googleusercontent.com",
+      "741989100077-skikooq060p69qmctgrug3d0csdo7nq8.apps.googleusercontent.com",
     iosClientId: "",
-    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+    redirectUri: AuthSession.makeRedirectUri({ scheme: "app_radarrearthrn" }),
   });
 
   const [keyboardOffset, setKeyboardOffset] = useState(0);
@@ -70,6 +70,8 @@ export default function LoginModal() {
   const handleloginGoogle = async () => {
     try {
       const result = await promptAsync();
+      console.log(result);
+
       if (result?.type === "success" && result.authentication?.idToken) {
         const idToken = result.authentication.idToken;
         const apiResponse = await instance.post("api/login-google", {
@@ -88,7 +90,6 @@ export default function LoginModal() {
         title: "Error",
         message: "Por favor, completa todos los campos.",
       });
-
       return;
     }
 
@@ -104,22 +105,30 @@ export default function LoginModal() {
       useUserStore.getState().setUser(userData);
     } catch (error) {
       console.log("Error login:", error);
-      alert("Error al iniciar sesión, revisa tus datos");
+      showAlert({
+        title: "Error",
+        message: "Error al iniciar sesión, revisa tus datos.",
+      });
     }
   };
 
   const handleRegister = async () => {
     const { username, email, password } = formFields;
 
-    alert(username);
     if (!username.trim() || !email.trim() || !password.trim()) {
-      alert("Por favor, completa todos los campos.");
+      showAlert({
+        title: "Error",
+        message: "Por favor, completa todos los campos.",
+      });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert("Por favor, ingresa un correo válido.");
+      showAlert({
+        title: "Error",
+        message: "Por favor, ingresa un correo válido.",
+      });
       return;
     }
 
@@ -132,17 +141,21 @@ export default function LoginModal() {
 
       setFormFields({ username: "", email: "", password: "" });
       hideRegisterModal();
-
-      alert("Registro exitoso, ya puedes iniciar sesión.");
+      showAlert({
+        title: "Éxito",
+        message: "Registro exitoso, ya puedes iniciar sesión.",
+      });
     } catch (error) {
       console.error(
         "Error al registrar:",
         error?.response?.data || error.message
       );
-      alert(
-        error?.response?.data?.message ||
-          "Ocurrió un error al registrar. Intenta nuevamente."
-      );
+      showAlert({
+        title: "Error",
+        message:
+          error?.response?.data?.message ||
+          "Ocurrió un error al registrar. Intenta nuevamente.",
+      });
     }
   };
 
