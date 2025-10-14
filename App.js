@@ -13,6 +13,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { useUserStore } from "./src/stores/userStore";
 import CustomAlert from "./src/components/CustomAlert";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -27,6 +28,16 @@ export default function App() {
   const { theme, darkMode } = useThemeStore();
   const setExpoPushToken = useUserStore((state) => state.setExpoPushToken);
   const [showOnboarding, setShowOnboarding] = useState(null);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        "741989100077-1cr5o5ts0jpsjp67bg2gt0ufm18cfqnd.apps.googleusercontent.com",
+      iosClientId:
+        "741989100077-skikooq060p69qmctgrug3d0csdo7nq8.apps.googleusercontent.com",
+      profileImageSize: 150,
+    });
+  }, []);
 
   useEffect(() => {
     let notificationListener;

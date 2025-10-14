@@ -18,6 +18,12 @@ import * as AuthSession from "expo-auth-session";
 import { useUserStore } from "../stores/userStore";
 import { showAlert } from "./CustomAlert";
 import CustomLoader from "./CustomLoader";
+
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+
 let showLoginFn;
 
 export function showLoginModal() {
@@ -35,13 +41,6 @@ export default function LoginModal() {
     username: "",
     email: "",
     password: "",
-  });
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId:
-      "741989100077-skikooq060p69qmctgrug3d0csdo7nq8.apps.googleusercontent.com",
-    iosClientId: "",
-    redirectUri: AuthSession.makeRedirectUri({ scheme: "app_radarrearthrn" }),
   });
 
   const [keyboardOffset, setKeyboardOffset] = useState(0);
@@ -69,17 +68,31 @@ export default function LoginModal() {
 
   const handleloginGoogle = async () => {
     try {
-      const result = await promptAsync();
-      console.log(result);
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      console.log(response);
 
-      if (result?.type === "success" && result.authentication?.idToken) {
-        const idToken = result.authentication.idToken;
-        const apiResponse = await instance.post("api/login-google", {
-          token: idToken,
-        });
+      if (isSuccessResponse(response)) {
+      } else {
+        // sign in was cancelled by user
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.code);
+
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.IN_PROGRESS:
+            // operation (eg. sign in) already in progress
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            // Android only, play services not available or outdated
+            break;
+          default:
+          // some other error happened
+        }
+      } else {
+        // an error that's not related to google sign in occurred
+      }
     }
   };
 
