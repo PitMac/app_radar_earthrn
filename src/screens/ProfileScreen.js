@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
-import { Text, TextInput, Button, Switch, Appbar, Divider } from "react-native-paper";
+import { Text, TextInput, Button, Switch, Appbar, Divider, useTheme } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 import GlobalIcon from "../components/GlobalIcon";
 import { Colors } from "../utils/Colors";
 
@@ -14,9 +15,8 @@ const REGIONS = [
   "África",
 ];
 
-import { useNavigation } from "@react-navigation/native";
-
 export default function ProfileScreen() {
+  const theme = useTheme();
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -26,10 +26,10 @@ export default function ProfileScreen() {
   const [pushNotifications, setPushNotifications] = useState(true);
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Portada azul */}
-        <View style={styles.cover}>
+        <View style={[styles.cover, { backgroundColor: theme.colors.primary }]}>
           <TouchableOpacity
             style={styles.menuButton}
             onPress={() => navigation.openDrawer()}
@@ -43,7 +43,7 @@ export default function ProfileScreen() {
                 source={require('../../assets/icon.png')}
                 style={styles.avatar}
               />
-              <View style={styles.avatarEditCircle}>
+              <View style={[styles.avatarEditCircle, { backgroundColor: theme.colors.primary, borderColor: '#fff' }]}>
                 <GlobalIcon
                   family="materialC"
                   name="pencil"
@@ -55,44 +55,44 @@ export default function ProfileScreen() {
           </View>
         </View>
         {/* Card de datos */}
-        <View style={styles.card}>
-          <Text style={styles.label}>Nombre de usuario</Text>
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+          <Text style={[styles.label, { color: theme.colors.primary }]}>Nombre de usuario</Text>
           <TextInput
             mode="outlined"
             value={username}
             onChangeText={setUsername}
             placeholder="Tu nombre"
-            style={styles.input}
+            style={[styles.input, { backgroundColor: undefined }]}
           />
-          <Text style={styles.label}>Correo electrónico</Text>
+          <Text style={[styles.label, { color: theme.colors.primary }]}>Correo electrónico</Text>
           <TextInput
             mode="outlined"
             value={email}
             onChangeText={setEmail}
             placeholder="correo@ejemplo.com"
-            style={styles.input}
+            style={[styles.input, { backgroundColor: undefined }]}
             keyboardType="email-address"
           />
           <Button
             mode="contained-tonal"
-            style={styles.button}
-            onPress={() => {}}
+            style={[styles.button]}
+            onPress={() => { }}
             icon="lock-reset"
           >
             Cambiar contraseña
           </Button>
           <Divider style={{ marginVertical: 16 }} />
-          <Text style={styles.label}>Región</Text>
+          <Text style={[styles.label, { color: theme.colors.primary }]}>Región</Text>
           <TouchableOpacity
-            style={styles.select}
+            style={[styles.select, { borderColor: theme.colors.primary, backgroundColor: theme.colors.surfaceVariant ?? theme.colors.surface }]}
             onPress={() => setShowRegionList(!showRegionList)}
             activeOpacity={0.7}
           >
-            <Text style={styles.selectText}>{region}</Text>
-            <Text style={{ fontSize: 18, color: Colors.primary }}>▼</Text>
+            <Text style={[styles.selectText, { color: theme.colors.primary }]}>{region}</Text>
+            <Text style={{ fontSize: 18, color: theme.colors.primary }}>▼</Text>
           </TouchableOpacity>
           {showRegionList && (
-            <View style={styles.regionList}>
+            <View style={[styles.regionList, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
               {REGIONS.map((r) => (
                 <TouchableOpacity
                   key={r}
@@ -102,22 +102,22 @@ export default function ProfileScreen() {
                     setShowRegionList(false);
                   }}
                 >
-                  <Text style={{ color: Colors.primary, fontWeight: region === r ? 'bold' : 'normal' }}>{r}</Text>
+                  <Text style={{ color: theme.colors.primary, fontWeight: region === r ? 'bold' : 'normal' }}>{r}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
           <Divider style={{ marginVertical: 16 }} />
           <View style={styles.switchRow}>
-            <Text style={styles.label}>Alertas internacionales</Text>
-            <Switch value={internationalAlerts} onValueChange={setInternationalAlerts} color={Colors.primary} />
+            <Text style={[styles.label, { color: theme.colors.onSurface }]}>Alertas internacionales</Text>
+            <Switch value={internationalAlerts} onValueChange={setInternationalAlerts} color={theme.colors.primary} />
           </View>
           <View style={styles.switchRow}>
-            <Text style={styles.label}>Push notifications</Text>
-            <Switch value={pushNotifications} onValueChange={setPushNotifications} color={Colors.primary} />
+            <Text style={[styles.label, { color: theme.colors.onSurface }]}>Push notifications</Text>
+            <Switch value={pushNotifications} onValueChange={setPushNotifications} color={theme.colors.primary} />
           </View>
           <Divider style={{ marginVertical: 16 }} />
-          <Button mode="contained" style={styles.saveButton} onPress={() => {}} icon="content-save">
+          <Button mode="contained" style={styles.saveButton} onPress={() => { }} icon="content-save">
             Guardar cambios
           </Button>
         </View>
@@ -130,12 +130,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     alignItems: 'center',
     paddingBottom: 40,
-    backgroundColor: Colors.background,
   },
   cover: {
     width: '100%',
     height: 140,
-    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingBottom: 0,
@@ -147,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 4,
     top: '80%',
-    transform: [{ translateY: -20 }], 
+    transform: [{ translateY: -20 }],
   },
   avatarContainer: {
     position: 'absolute',
@@ -192,41 +190,35 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: 'bold',
-    color: Colors.primary,
     marginBottom: 4,
     marginTop: 12,
   },
   input: {
     marginBottom: 8,
-    backgroundColor: '#f7f7f7',
   },
   button: {
     marginTop: 10,
     marginBottom: 10,
-    borderRadius: 8,
+    borderRadius: 25,
+    backgroundColor: Colors.secondary,
   },
   select: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: Colors.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginBottom: 8,
-    backgroundColor: '#f7f7f7',
   },
   selectText: {
-    color: Colors.primary,
     fontWeight: 'bold',
     fontSize: 16,
   },
   regionList: {
-    backgroundColor: '#fff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.primary,
     marginBottom: 8,
     marginTop: -8,
     zIndex: 10,
@@ -234,7 +226,7 @@ const styles = StyleSheet.create({
   regionItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: 'rgba(0,0,0,0.1)'
   },
   switchRow: {
     flexDirection: 'row',
@@ -244,6 +236,8 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: 10,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: 5,
+    borderRadius: 25,
   },
 });

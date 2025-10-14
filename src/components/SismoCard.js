@@ -121,7 +121,7 @@ export default function SismoCard({ feature }) {
                     </View>
 
                     <View style={styles.infoBox}>
-                        <Text style={[styles.titleText,{color: darkMode ? 'white' : 'black'}]} numberOfLines={3}>
+                        <Text style={[styles.titleText,{color: theme.colors.text}]} numberOfLines={3}>
                             {properties.place}
                         </Text>
                         <Text style={styles.dateText}>

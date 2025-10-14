@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, FlatList, Dimensions, TouchableOpacity } from "react-native";
-
+import { Colors } from "../utils/Colors";
 const { width } = Dimensions.get("window");
 
 const slides = [
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#024280',
   },
   button: {
-    backgroundColor: '#024280',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 40,
     paddingVertical: 12,
     borderRadius: 25,

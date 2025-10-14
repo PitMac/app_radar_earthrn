@@ -1,12 +1,10 @@
 import React from "react";
-import { Modal, View, TouchableOpacity, StyleSheet } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, useTheme, Modal,Portal } from "react-native-paper";
 import { Colors } from "../utils/Colors";
-import { useThemeStore } from "../stores/themeStore";
 export default function HelpModal({ visible, onClose }) {
     const theme = useTheme();
-    const darkMode = useThemeStore((state) => state.darkMode);
-    
+
     const colorInfo = [
         {
             color: '#4CAF50',
@@ -30,40 +28,31 @@ export default function HelpModal({ visible, onClose }) {
         },
     ];
     return (
-        <Modal
-            visible={visible}
-            animationType="slide"
-            transparent
-            onRequestClose={onClose}
-        >
-            <View style={helpStyles.modalOverlay}>
-                <View style={[helpStyles.modalContent,{ backgroundColor: theme.colors.surface}]}>
-                    <Text style={[helpStyles.modalTitle,{ color: darkMode ? 'white' : 'black' }]}>¿Qué significan los colores?</Text>
-                    {colorInfo.map((item) => (
-                        <View key={item.label} style={helpStyles.colorRow}>
-                            <View style={[helpStyles.colorCircle, { backgroundColor: item.color }]} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[helpStyles.colorLabel,{ color: darkMode ? 'white' : 'black' }]}>{item.label}</Text>
-                                <Text style={[helpStyles.colorDesc,{ color: darkMode ? 'white' : 'black' }]}>{item.desc}</Text>
-                            </View>
+        <Portal>
+            <Modal
+                visible={visible}
+                onDismiss={onClose}
+                contentContainerStyle={[helpStyles.modalContent, { backgroundColor: theme.colors.surface }]}
+            >
+                <Text style={[helpStyles.modalTitle, { color: theme.colors.text }]}>¿Qué significan los colores?</Text>
+                {colorInfo.map((item) => (
+                    <View key={item.label} style={helpStyles.colorRow}>
+                        <View style={[helpStyles.colorCircle, { backgroundColor: item.color }]} />
+                        <View style={{ flex: 1 }}>
+                            <Text style={[helpStyles.colorLabel, { color: theme.colors.text }]}>{item.label}</Text>
+                            <Text style={[helpStyles.colorDesc, { color: theme.colors.text }]}>{item.desc}</Text>
                         </View>
-                    ))}
-                    <TouchableOpacity style={helpStyles.closeButton} onPress={onClose}>
-                        <Text style={helpStyles.closeButtonText}>Entendido</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Modal>
+                    </View>
+                ))}
+                <TouchableOpacity style={helpStyles.closeButton} onPress={onClose}>
+                    <Text style={helpStyles.closeButtonText}>Entendido</Text>
+                </TouchableOpacity>
+            </Modal>
+        </Portal>
     );
 }
 
 const helpStyles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.35)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     modalContent: {
         width: '88%',
         backgroundColor: '#fff',
@@ -71,6 +60,7 @@ const helpStyles = StyleSheet.create({
         padding: 24,
         elevation: 8,
         alignItems: 'center',
+        alignSelf: 'center',
     },
     modalTitle: {
         fontSize: 20,
@@ -104,9 +94,9 @@ const helpStyles = StyleSheet.create({
     closeButton: {
         marginTop: 24,
         backgroundColor: Colors.primary,
-        borderRadius: 8,
-        paddingVertical: 10,
-        paddingHorizontal: 32,
+        paddingHorizontal: 40,
+        paddingVertical: 12,
+        borderRadius: 25,
     },
     closeButtonText: {
         color: '#fff',
