@@ -8,6 +8,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { Image } from "expo-image";
 import { showModalUpgradePro } from "./UpgradeProModal";
 import GlobalIcon from "./GlobalIcon";
+import i18n from "../i18n";
 
 export default function CustomDrawer(props) {
   const theme = useTheme();
@@ -68,7 +69,7 @@ export default function CustomDrawer(props) {
         </View>
         <Drawer.Section showDivider={false}>
           <Drawer.Item
-            label="Inicio"
+            label={i18n.t("drawer.home")}
             active={active === 0}
             icon={() => (
               <Feather name="home" size={24} color={theme.colors.onSurface} />
@@ -86,7 +87,7 @@ export default function CustomDrawer(props) {
             }}
           />
           <Drawer.Item
-            label="Perfil"
+            label={i18n.t("drawer.profile")}
             active={active === 1}
             icon={() => (
               <Feather
@@ -122,7 +123,7 @@ export default function CustomDrawer(props) {
       <View>
         <Divider />
         <Drawer.Item
-          label="Configuracion"
+          label={i18n.t("drawer.settings")}
           active={active === 2}
           icon={() => (
             <Feather name="settings" size={24} color={theme.colors.onSurface} />
@@ -151,7 +152,7 @@ export default function CustomDrawer(props) {
         />
         {appVersion === "free" && (
           <Drawer.Item
-            label="MEJORAR A PRO"
+            label={i18n.t("drawer.upgradePro")}
             icon={() => (
               <GlobalIcon
                 family="materialC"
@@ -174,7 +175,7 @@ export default function CustomDrawer(props) {
               fontSize: 16,
             }}
           >
-            Modo oscuro
+            {i18n.t("drawer.darkMode")}
           </Text>
           <Switch
             value={darkMode}

@@ -60,4 +60,62 @@ export default {
     nextButton: "Siguiente",
     startButton: "¡Comenzar!",
   },
+  activities: {
+    title: "Actividades",
+    emptyTitle: "¡Todo en calma por ahora!",
+    emptySubtitle: "Sin eventos sísmicos recientes detectados.",
+  },
+  helpModal: {
+    title: "¿Qué significan los colores?",
+    colors: {
+      green: {
+        label: "Verde",
+        desc: "Magnitud baja (menor a 4.0). Sismos leves, usualmente imperceptibles.",
+      },
+      yellow: {
+        label: "Amarillo",
+        desc: "Magnitud moderada (4.0 - 5.9). Sismos perceptibles pero poco dañinos.",
+      },
+      red: {
+        label: "Rojo",
+        desc: "Magnitud fuerte (6.0 - 6.9). Sismos potencialmente dañinos.",
+      },
+      purple: {
+        label: "Violeta",
+        desc: "Magnitud muy fuerte (7.0 o más). Sismos peligrosos y destructivos.",
+      },
+    },
+    closeButton: "Entendido",
+  },
+  drawer: {
+    home: "Inicio",
+    profile: "Perfil",
+    settings: "Configuración",
+    upgradePro: "MEJORAR A PRO",
+    darkMode: "Modo oscuro",
+  },
+  upgradePro: {
+    title: "¡MEJORA A PRO!",
+    subtitle: "Desbloquea todo el potencial y apoya nuestro desarrollo.",
+    subscribeButton: "Suscribirme",
+    popularTag: "POPULAR",
+    beneficios: [
+      "Experiencia sin anuncios",
+      "Estadísticas avanzadas y Blog completo",
+      "Notificaciones y alertas internacionales",
+      "Acceso prioritario a nuevas funciones",
+    ],
+    planes: {
+      mensual: {
+        titulo: "Plan Mensual",
+        precio: "USD 0.99",
+        duracion: "al mes",
+      },
+      anual: {
+        titulo: "Plan Anual (Ahorra 60%)",
+        precio: "USD 3.99",
+        duracion: "al año",
+      },
+    },
+  },
 };

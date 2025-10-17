@@ -6,17 +6,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
 import HelpModal from "../components/HelpModal";
 import CustomAppBar from "../components/CustomAppBar";
 import { useNavigation } from "@react-navigation/native";
-import GlobalIcon from "../components/GlobalIcon";
-import { SafeAreaView } from "react-native-safe-area-context";
 import EmptyList from "../components/EmptyList";
-import { List, Card, Text } from "react-native-paper";
-import { Colors } from "../utils/Colors";
 import SismoCard from "../components/SismoCard";
 import CustomLoader from "../components/CustomLoader";
+import i18n from "../i18n";
 
 export default function ActivitiesScreen() {
   const navigation = useNavigation();
@@ -164,7 +160,7 @@ export default function ActivitiesScreen() {
     <View style={{ flex: 1 }}>
       <CustomLoader loading={isLoading} />
       <CustomAppBar
-        title="Actividades"
+        title={i18n.t("activities.title")}
         showDrawerButton
         onDrawerPress={() => navigation.openDrawer()}
         actions={[
@@ -182,8 +178,8 @@ export default function ActivitiesScreen() {
           renderItem={({ item }) => <SismoCard feature={item} />}
           ListEmptyComponent={
             <EmptyList
-              message="¡Todo en calma por ahora!"
-              message2="Sin eventos sísmicos recientes detectados."
+              message={i18n.t("activities.emptyTitle")}
+              message2={i18n.t("activities.emptySubtitle")}
             />
           }
           refreshing={isRefreshing}

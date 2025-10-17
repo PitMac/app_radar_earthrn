@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { Colors } from "../utils/Colors";
+import i18n from "../i18n";
 
 let showModalFn;
 
@@ -33,25 +34,25 @@ export default function UpgradeProModal() {
   const hideModal = () => setVisible(false);
 
   const beneficios = [
-    { id: 1, text: "Experiencia sin anuncios" },
-    { id: 2, text: "Estadísticas avanzadas y Blog completo" },
-    { id: 3, text: "Notificaciones y alertas internacionales" },
-    { id: 4, text: "Acceso prioritario a nuevas funciones" },
+    { id: 1, text: i18n.t("upgradePro.beneficios.0") },
+    { id: 2, text: i18n.t("upgradePro.beneficios.1") },
+    { id: 3, text: i18n.t("upgradePro.beneficios.2") },
+    { id: 4, text: i18n.t("upgradePro.beneficios.3") },
   ];
 
   const planes = [
     {
       id: "mensual",
-      titulo: "Plan Mensual",
-      precio: "USD 0.99",
-      duracion: "al mes",
+      titulo: i18n.t("upgradePro.planes.mensual.titulo"),
+      precio: i18n.t("upgradePro.planes.mensual.precio"),
+      duracion: i18n.t("upgradePro.planes.mensual.duracion"),
       color: theme.colors.primary,
     },
     {
       id: "anual",
-      titulo: "Plan Anual (Ahorra 60%)",
-      precio: "USD 3.99",
-      duracion: "al año",
+      titulo: i18n.t("upgradePro.planes.anual.titulo"),
+      precio: i18n.t("upgradePro.planes.anual.precio"),
+      duracion: i18n.t("upgradePro.planes.anual.duracion"),
       color: Colors.secondary || "#0088cc",
       isPopular: true,
     },
@@ -98,11 +99,9 @@ export default function UpgradeProModal() {
         >
           <View>
             <Text style={[styles.title, { color: theme.colors.onSurface }]}>
-              ¡MEJORA A PRO!
+              {i18n.t("upgradePro.title")}
             </Text>
-            <Text style={styles.subtitle}>
-              Desbloquea todo el potencial y apoya nuestro desarrollo.
-            </Text>
+            <Text style={styles.subtitle}>{i18n.t("upgradePro.subtitle")}</Text>
 
             <View style={styles.beneficiosContainer}>
               {beneficios.map((item) => (
@@ -178,7 +177,7 @@ export default function UpgradeProModal() {
               hideModal();
             }}
           >
-            Suscribirme
+            {i18n.t("upgradePro.subscribeButton")}
           </Button>
         </View>
       </Modal>
