@@ -167,14 +167,13 @@ export default function ActivitiesScreen() {
         title="Actividades"
         showDrawerButton
         onDrawerPress={() => navigation.openDrawer()}
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => setHelpVisible(true)}
-            style={{ marginRight: 8 }}
-          >
-            <Ionicons name="help-circle" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-        }
+        actions={[
+          {
+            icon: "help-circle",
+            onPress: () => setHelpVisible(true),
+            color: "#fff",
+          },
+        ]}
       />
       <View style={{ flex: 1, width: "100%" }}>
         <FlatList

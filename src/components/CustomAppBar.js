@@ -11,7 +11,6 @@ export default function CustomAppBar({
   onBackPress,
   actions = [],
   style,
-  rightComponent,
 }) {
   const theme = useTheme();
   const isDark = theme.dark;
@@ -39,7 +38,6 @@ export default function CustomAppBar({
           color={contentColor}
         />
       ))}
-      {rightComponent && rightComponent}
     </Appbar.Header>
   );
 }
