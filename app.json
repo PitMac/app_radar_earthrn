@@ -2,7 +2,7 @@
   "expo": {
     "name": "app_radarrearthrn",
     "slug": "app_radarrearthrn",
-    "scheme": "app_radarrearthrn",
+    "scheme": "com.radarrearth.app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -48,12 +48,7 @@
           }
         }
       ],
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
-        }
-      ]
+      "expo-localization"
     ]
   }
 }

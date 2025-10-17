@@ -1,37 +1,47 @@
 import React, { useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, FlatList, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { Colors } from "../utils/Colors";
+import i18n from "../i18n";
+
 const { width } = Dimensions.get("window");
 
 const slides = [
   {
     key: "1",
-    title: "¡Bienvenido a Radar Earth!",
-    description: "Tu app para alertas sísmicas en tiempo real.",
+    title: i18n.t("onboarding.slide1.title"),
+    description: i18n.t("onboarding.slide1.description"),
     image: require("../../assets/logo.jpeg"),
   },
   {
     key: "2",
-    title: "Recibe alertas inmediatas",
-    description: "Te notificamos al instante cuando ocurre un sismo relevante cerca de ti.",
+    title: i18n.t("onboarding.slide2.title"),
+    description: i18n.t("onboarding.slide2.description"),
     image: require("../../assets/recibe_alertas.png"),
   },
   {
     key: "3",
-    title: "Visualiza epicentros en el mapa",
-    description: "Consulta la ubicación y detalles de los últimos sismos en un mapa interactivo.",
+    title: i18n.t("onboarding.slide3.title"),
+    description: i18n.t("onboarding.slide3.description"),
     image: require("../../assets/mapa_sismico.png"),
   },
   {
     key: "4",
-    title: "Personaliza tus notificaciones",
-    description: "Configura la intensidad mínima y las regiones de interés para tus alertas.",
+    title: i18n.t("onboarding.slide4.title"),
+    description: i18n.t("onboarding.slide4.description"),
     image: require("../../assets/personaliza_notificaciones.png"),
   },
   {
     key: "5",
-    title: "¡Listo para comenzar!",
-    description: "Explora todas las funciones y mantente seguro.",
+    title: i18n.t("onboarding.slide5.title"),
+    description: i18n.t("onboarding.slide5.description"),
     image: require("../../assets/listo_empezar.png"),
   },
 ];
@@ -66,18 +76,25 @@ export default function Onboarding({ onFinish }) {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={e => {
+        onMomentumScrollEnd={(e) => {
           const index = Math.round(e.nativeEvent.contentOffset.x / width);
           setCurrent(index);
         }}
       />
       <View style={styles.dotsContainer}>
         {slides.map((_, i) => (
-          <View key={i} style={[styles.dot, current === i && styles.dotActive]} />
+          <View
+            key={i}
+            style={[styles.dot, current === i && styles.dotActive]}
+          />
         ))}
       </View>
       <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>{current === slides.length - 1 ? "¡Comenzar!" : "Siguiente"}</Text>
+        <Text style={styles.buttonText}>
+          {current === slides.length - 1
+            ? i18n.t("onboarding.startButton")
+            : i18n.t("onboarding.nextButton")}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -86,15 +103,15 @@ export default function Onboarding({ onFinish }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
     paddingBottom: 40,
   },
   slide: {
     width,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 30,
   },
   image: {
@@ -104,30 +121,30 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#024280',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#024280",
+    textAlign: "center",
     marginBottom: 10,
   },
   description: {
     fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
     marginBottom: 20,
   },
   dotsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 20,
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     marginHorizontal: 5,
   },
   dotActive: {
-    backgroundColor: '#024280',
+    backgroundColor: "#024280",
   },
   button: {
     backgroundColor: Colors.primary,
@@ -136,8 +153,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 18,
   },
 });

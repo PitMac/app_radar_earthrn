@@ -40,7 +40,7 @@ export default function CustomAlert() {
       >
         {options.title ? <Dialog.Title>{options.title}</Dialog.Title> : null}
         <Dialog.Content>
-          <Text variant="bodyMedium">This is simple dialog</Text>
+          <Text variant="bodyMedium">{options.message}</Text>
         </Dialog.Content>
         <Dialog.Actions>
           {options.actions.map((action, i) => (

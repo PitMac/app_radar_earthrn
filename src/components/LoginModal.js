@@ -8,7 +8,6 @@ import {
   TextInput,
   Text,
 } from "react-native-paper";
-import * as Google from "expo-auth-session/providers/google";
 import { useTheme } from "react-native-paper";
 import { Colors } from "../utils/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -18,11 +17,9 @@ import * as AuthSession from "expo-auth-session";
 import { useUserStore } from "../stores/userStore";
 import { showAlert } from "./CustomAlert";
 import CustomLoader from "./CustomLoader";
-
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+import * as Google from "expo-auth-session/providers/google";
+import { StatusBar } from "expo-status-bar";
+import i18n from "../i18n";
 
 let showLoginFn;
 
@@ -41,6 +38,17 @@ export default function LoginModal() {
     username: "",
     email: "",
     password: "",
+  });
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId:
+      "741989100077-1cr5o5ts0jpsjp67bg2gt0ufm18cfqnd.apps.googleusercontent.com",
+    iosClientId: "TU_IOS_CLIENT_ID.apps.googleusercontent.com",
+    androidClientId:
+      "741989100077-skikooq060p69qmctgrug3d0csdo7nq8.apps.googleusercontent.com",
+    redirectUri: AuthSession.makeRedirectUri({
+      scheme: "com.radarrearth.app",
+      useProxy: true,
+    }),
   });
 
   const [keyboardOffset, setKeyboardOffset] = useState(0);
@@ -68,31 +76,21 @@ export default function LoginModal() {
 
   const handleloginGoogle = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      console.log(response);
+      const result = await promptAsync();
 
-      if (isSuccessResponse(response)) {
+      if (result.type === "success" && result.params.code) {
+        const { data } = await instance.post("/auth/google", {
+          code: result.params.code,
+          redirectUri: "com.radarrearth.app://",
+          expoPushToken,
+        });
+
+        console.log("Respuesta del backend:", data);
       } else {
-        // sign in was cancelled by user
+        console.log("Login cancelado o sin código", result);
       }
     } catch (error) {
-      console.log(error.code);
-
-      if (isErrorWithCode(error)) {
-        switch (error.code) {
-          case statusCodes.IN_PROGRESS:
-            // operation (eg. sign in) already in progress
-            break;
-          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            // Android only, play services not available or outdated
-            break;
-          default:
-          // some other error happened
-        }
-      } else {
-        // an error that's not related to google sign in occurred
-      }
+      console.log("Error login Google:", error);
     }
   };
 
@@ -159,10 +157,6 @@ export default function LoginModal() {
         message: "Registro exitoso, ya puedes iniciar sesión.",
       });
     } catch (error) {
-      console.error(
-        "Error al registrar:",
-        error?.response?.data || error.message
-      );
       showAlert({
         title: "Error",
         message:
@@ -175,133 +169,152 @@ export default function LoginModal() {
   return (
     <Portal>
       <CustomLoader loading={loading} />
+      <StatusBar style={"light"} />
       <Modal
         visible={visible}
         onDismiss={hideModal}
         dismissable={false}
         contentContainerStyle={{
           flex: 1,
-          backgroundColor: theme.colors.background,
+          backgroundColor: theme.colors.primary,
           marginBottom: keyboardOffset,
         }}
       >
-        <View style={styles.header}>
+        <View style={styles.headerContainer}>
           <IconButton
-            icon="chevron-left"
+            icon="arrow-left"
             size={24}
             onPress={hideModal}
-            style={styles.closeButton}
+            style={styles.backButton}
+            iconColor="white"
           />
-        </View>
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            padding: 20,
-            justifyContent: "center",
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Image
-              style={{ width: 170, height: 170, borderRadius: 5 }}
-              source={require("../../assets/logo.jpeg")}
-            />
-          </View>
-
-          <View style={{ marginVertical: 10 }}>
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", marginVertical: 10 }}
-            >
-              Iniciar sesión
-            </Text>
-            <TextInput
-              mode="outlined"
-              label="Email"
-              style={{ marginBottom: 5 }}
-              value={formFields.email}
-              onChangeText={handleChange("email")}
-            />
-            <TextInput
-              mode="outlined"
-              label="Contraseña"
-              style={{ marginBottom: 10 }}
-              value={formFields.password}
-              onChangeText={handleChange("password")}
-              secureTextEntry={!seePassword}
-              right={
-                <TextInput.Icon
-                  icon={seePassword ? "eye-off" : "eye"}
-                  onPress={() => setSeePassword(!seePassword)}
-                />
-              }
-            />
-          </View>
-          <Button onPress={handleLogin} mode="contained">
-            INICIAR SESION
-          </Button>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: 10,
-              paddingHorizontal: 10,
-            }}
-          >
-            <Text style={{ fontSize: 14 }}>¿No tienes cuenta?</Text>
-            <Text
-              style={{
-                color: theme.dark ? Colors.primaryDark : Colors.primary,
-                fontWeight: "bold",
-                fontSize: 14,
-              }}
-              onPress={() => {
-                setFormFields({ email: "", password: "", username: "" });
-                setShowRegister(true);
-                setSeePassword(false);
-              }}
-            >
-              Regístrate aquí
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginVertical: 20,
-            }}
-          >
-            <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
-            <Text style={{ marginHorizontal: 10, color: "#888" }}>O</Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
-          </View>
-          <Button
-            mode="outlined"
-            icon={() => <AntDesign name="google" size={24} color="#DB4437" />}
-            onPress={handleloginGoogle}
-          >
-            Continuar con Google
-          </Button>
-          <View style={{ height: 10 }} />
-          <Button
-            mode="outlined"
-            icon={() => (
-              <AntDesign
-                name="apple"
-                size={24}
-                color={theme.dark ? "white" : "#000"}
+          <View style={styles.headerContent}>
+            <View style={styles.logoContainer}>
+              <Image
+                style={styles.logo}
+                source={require("../../assets/logo.jpeg")}
               />
-            )}
-            onPress={handleloginGoogle}
+            </View>
+            <Text style={styles.headerTitle}>RADAR EARTH</Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.contentContainer,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              padding: 20,
+            }}
+            keyboardShouldPersistTaps="handled"
           >
-            Continuar con Apple
-          </Button>
-        </ScrollView>
+            <View style={{ marginVertical: 10 }}>
+              <Text
+                style={{
+                  fontSize: 25,
+                  fontWeight: "bold",
+                  marginVertical: 10,
+                }}
+              >
+                {i18n.t("login.title")}
+              </Text>
+              <Text style={[styles.label, { color: theme.colors.primary }]}>
+                {i18n.t("login.emailLabel")}
+              </Text>
+              <TextInput
+                mode="outlined"
+                placeholder={i18n.t("login.emailPlaceholder")}
+                value={formFields.email}
+                onChangeText={handleChange("email")}
+              />
+              <Text style={[styles.label, { color: theme.colors.primary }]}>
+                {i18n.t("login.passwordLabel")}
+              </Text>
+              <TextInput
+                mode="outlined"
+                placeholder={i18n.t("login.passwordPlaceholder")}
+                style={{ marginBottom: 10 }}
+                value={formFields.password}
+                onChangeText={handleChange("password")}
+                secureTextEntry={!seePassword}
+                right={
+                  <TextInput.Icon
+                    icon={seePassword ? "eye-off" : "eye"}
+                    onPress={() => setSeePassword(!seePassword)}
+                  />
+                }
+              />
+            </View>
+
+            <Button onPress={handleLogin} mode="contained">
+              {i18n.t("login.loginButton")}
+            </Button>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 10,
+                paddingHorizontal: 10,
+              }}
+            >
+              <Text style={{ fontSize: 14 }}>{i18n.t("login.noAccount")}</Text>
+              <Text
+                style={{
+                  color: theme.dark ? Colors.primaryDark : Colors.primary,
+                  fontWeight: "bold",
+                  fontSize: 14,
+                }}
+                onPress={() => {
+                  setFormFields({ email: "", password: "", username: "" });
+                  setShowRegister(true);
+                  setSeePassword(false);
+                }}
+              >
+                {i18n.t("login.registerHere")}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginVertical: 30,
+              }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+              <Text style={{ marginHorizontal: 10, color: "#888" }}>O</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: "#ccc" }} />
+            </View>
+
+            <Button
+              mode="outlined"
+              icon={() => <AntDesign name="google" size={24} color="#DB4437" />}
+              onPress={handleloginGoogle}
+            >
+              {i18n.t("login.continueWithGoogle")}
+            </Button>
+            <View style={{ height: 10 }} />
+            <Button
+              mode="outlined"
+              icon={() => (
+                <AntDesign
+                  name="apple"
+                  size={24}
+                  color={theme.dark ? "white" : "#000"}
+                />
+              )}
+              onPress={handleloginGoogle}
+            >
+              {i18n.t("login.continueWithApple")}
+            </Button>
+          </ScrollView>
+        </View>
       </Modal>
       <Modal
         visible={showRegister}
@@ -310,7 +323,7 @@ export default function LoginModal() {
         contentContainerStyle={{
           backgroundColor: theme.colors.background,
           padding: 20,
-          borderRadius: 12,
+          borderRadius: 25,
           width: "90%",
           alignSelf: "center",
           marginBottom: keyboardOffset,
@@ -337,23 +350,32 @@ export default function LoginModal() {
           keyboardShouldPersistTaps="handled"
         >
           <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-            Registrarse
+            {i18n.t("register.title")}
+          </Text>
+          <Text style={[styles.label, { color: theme.colors.primary }]}>
+            {i18n.t("register.usernameLabel")}
           </Text>
           <TextInput
             mode="outlined"
-            label="Nombre completo"
+            placeholder={i18n.t("register.usernamePlaceholder")}
             value={formFields.name}
             onChangeText={handleChange("name")}
           />
+          <Text style={[styles.label, { color: theme.colors.primary }]}>
+            {i18n.t("register.emailLabel")}
+          </Text>
           <TextInput
             mode="outlined"
-            label="Email"
+            placeholder={i18n.t("register.emailPlaceholder")}
             value={formFields.email}
             onChangeText={handleChange("email")}
           />
+          <Text style={[styles.label, { color: theme.colors.primary }]}>
+            {i18n.t("register.passwordLabel")}
+          </Text>
           <TextInput
             mode="outlined"
-            label="Contraseña"
+            placeholder={i18n.t("register.passwordPlaceholder")}
             value={formFields.password}
             onChangeText={handleChange("password")}
             style={{ marginBottom: 20 }}
@@ -366,43 +388,59 @@ export default function LoginModal() {
             }
           />
           <Button mode="contained" onPress={handleRegister}>
-            REGISTRARSE
+            {i18n.t("register.registerButton")}
           </Button>
         </ScrollView>
       </Modal>
     </Portal>
   );
 }
-
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
+  headerContainer: {
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    position: "relative",
   },
-  container: {
-    flex: 1,
-    borderRadius: 8,
-    padding: 20,
+  backButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 10,
   },
-  header: {
-    marginTop: 15,
-    marginLeft: 10,
-    flexDirection: "row",
+  headerContent: {
     alignItems: "center",
   },
-  title: { fontSize: 20, fontWeight: "bold" },
-  closeButton: { margin: 0 },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-  },
-  socialButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 10,
-    justifyContent: "center",
+  logoContainer: {
+    backgroundColor: "white",
+    borderRadius: 100,
+    width: 120,
+    height: 120,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.primary,
+    justifyContent: "center",
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    borderRadius: 50,
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 25,
+    fontWeight: "bold",
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  contentContainer: {
+    flex: 1,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    overflow: "hidden",
+    marginTop: -25, // para que se vea redondeado sobre el header
+  },
+  label: {
+    fontWeight: "bold",
+    marginBottom: 4,
+    marginTop: 12,
   },
 });

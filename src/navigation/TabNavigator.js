@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ActivitiesScreen from "../screens/ActivitiesScreen";
 import MapScreen from "../screens/MapScreen";
 import BlogScreen from "../screens/BlogScreen";
-import { BottomNavigation } from "react-native-paper";
+import { BottomNavigation, useTheme } from "react-native-paper";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 /*
 const Tab = createBottomTabNavigator();
@@ -21,7 +21,7 @@ export default function HomeTabs() {
 
 export default function HomeTabs({ navigation }) {
   const [index, setIndex] = useState(0);
-
+  const theme = useTheme();
   const [routes] = useState([
     { key: "activities", title: "Actividades", icon: "home" },
     { key: "map", title: "Mapa", icon: "map" },
@@ -41,6 +41,10 @@ export default function HomeTabs({ navigation }) {
       renderScene={renderScene}
       shifting={true}
       sceneAnimationEnabled={true}
+      labeled={false}
+      barStyle={{
+        backgroundColor: theme.colors.background,
+      }}
       renderIcon={({ route, focused, color }) => (
         <MaterialDesignIcons name={route.icon} size={24} color={color} />
       )}
