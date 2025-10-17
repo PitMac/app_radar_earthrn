@@ -98,8 +98,8 @@ export default function LoginModal() {
     const { email, password } = formFields;
     if (!email.trim() || !password.trim()) {
       showAlert({
-        title: "Error",
-        message: "Por favor, completa todos los campos.",
+        title: i18n.t("login.errorTitle"),
+        message: i18n.t("login.errorEmptyFields"),
       });
       return;
     }
@@ -117,8 +117,8 @@ export default function LoginModal() {
     } catch (error) {
       console.log("Error login:", error);
       showAlert({
-        title: "Error",
-        message: "Error al iniciar sesión, revisa tus datos.",
+        title: i18n.t("login.errorTitle"),
+        message: i18n.t("login.errorLogin"),
       });
     }
   };
@@ -128,8 +128,8 @@ export default function LoginModal() {
 
     if (!username.trim() || !email.trim() || !password.trim()) {
       showAlert({
-        title: "Error",
-        message: "Por favor, completa todos los campos.",
+        title: i18n.t("login.errorTitle"),
+        message: i18n.t("login.errorEmptyFields"),
       });
       return;
     }
@@ -137,8 +137,8 @@ export default function LoginModal() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showAlert({
-        title: "Error",
-        message: "Por favor, ingresa un correo válido.",
+        title: i18n.t("login.errorTitle"),
+        message: i18n.t("login.errorInvalidEmail"),
       });
       return;
     }
@@ -153,15 +153,14 @@ export default function LoginModal() {
       setFormFields({ username: "", email: "", password: "" });
       hideRegisterModal();
       showAlert({
-        title: "Éxito",
-        message: "Registro exitoso, ya puedes iniciar sesión.",
+        title: i18n.t("login.successTitle"),
+        message: i18n.t("login.successRegister"),
       });
     } catch (error) {
       showAlert({
-        title: "Error",
+        title: i18n.t("login.errorTitle"),
         message:
-          error?.response?.data?.message ||
-          "Ocurrió un error al registrar. Intenta nuevamente.",
+          error?.response?.data?.message || i18n.t("login.errorRegister"),
       });
     }
   };
